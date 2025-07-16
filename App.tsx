@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Header } from './components/Header';
 import { InputSection } from './components/InputSection';
 import { ResultsTable } from './components/ResultsTable';
@@ -14,6 +14,13 @@ const App: React.FC = () => {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResultItem[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [isApiKeyMissing, setIsApiKeyMissing] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!process.env.API_KEY) {
+      setIsApiKeyMissing(true);
+    }
+  }, []);
 
   const handleAnalyze = useCallback(async () => {
     if (!syllabus.trim() || !exam.trim()) {
@@ -54,6 +61,12 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-slate-100 text-slate-800">
       <Header />
       <main className="container mx-auto p-4 md:p-8">
+        {isApiKeyMissing && (
+          <div className="mb-6 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-r-lg shadow" role="alert">
+            <p className="font-bold">Configuration Required</p>
+            <p>The AI analysis feature is disabled. To enable it, please ensure the <code>API_KEY</code> environment variable is correctly configured.</p>
+          </div>
+        )}
         <InputSection
           syllabus={syllabus}
           setSyllabus={setSyllabus}
@@ -63,6 +76,7 @@ const App: React.FC = () => {
           onUseSampleData={handleUseSampleData}
           onClear={handleClear}
           isLoading={isLoading}
+          isApiKeyMissing={isApiKeyMissing}
         />
         
         {isLoading && <Loader />}
