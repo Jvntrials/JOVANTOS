@@ -1,12 +1,5 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { AnalysisResultItem } from '../types';
-
-if (!process.env.API_KEY) {
-    throw new Error("API_KEY environment variable not set");
-}
-
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const responseSchema = {
   type: Type.ARRAY,
@@ -43,6 +36,12 @@ const responseSchema = {
 };
 
 export const analyzeSyllabusAndExam = async (syllabus: string, exam: string): Promise<AnalysisResultItem[]> => {
+  if (!process.env.API_KEY) {
+    // This error will be caught by the try/catch in App.tsx and displayed to the user.
+    throw new Error("API_KEY is not configured. Please ensure it is set up in your environment to use the AI features.");
+  }
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
   const prompt = `
     As an expert in educational assessment and curriculum design, your task is to analyze the provided syllabus and exam content.
 
@@ -66,32 +65,24 @@ export const analyzeSyllabusAndExam = async (syllabus: string, exam: string): Pr
     Now, perform the analysis and generate the JSON output.
   `;
 
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: responseSchema,
-        temperature: 0.2,
-      },
-    });
+  // The try/catch from App.tsx will handle errors from this call.
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: prompt,
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: responseSchema,
+      temperature: 0.2,
+    },
+  });
 
-    const jsonText = response.text.trim();
-    const parsedResult = JSON.parse(jsonText);
-    
-    // Basic validation to ensure we have an array of objects
-    if (!Array.isArray(parsedResult) || (parsedResult.length > 0 && typeof parsedResult[0] !== 'object')) {
-        throw new Error("API returned data in an unexpected format.");
-    }
-
-    return parsedResult as AnalysisResultItem[];
-
-  } catch (error) {
-    console.error("Error calling Gemini API:", error);
-    if (error instanceof Error && error.message.includes('JSON')) {
-        throw new Error("The AI failed to generate a valid JSON response. Please try adjusting your input.");
-    }
-    throw new Error("Failed to analyze content. The AI model may be temporarily unavailable or the input is invalid.");
+  const jsonText = response.text.trim();
+  const parsedResult = JSON.parse(jsonText);
+  
+  // Basic validation to ensure we have an array of objects
+  if (!Array.isArray(parsedResult) || (parsedResult.length > 0 && typeof parsedResult[0] !== 'object')) {
+      throw new Error("API returned data in an unexpected format.");
   }
+
+  return parsedResult as AnalysisResultItem[];
 };
