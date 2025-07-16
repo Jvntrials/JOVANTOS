@@ -1,0 +1,5 @@
+{
+  "name": "Syllabus & Exam Analyzer AI",
+  "description": "An AI-powered tool for educators to analyze syllabus content and exam questions. It matches learning outcomes to questions and classifies them using Bloom's Taxonomy, providing a detailed breakdown in a structured table.",
+  "requestFramePermissions": []
+}
