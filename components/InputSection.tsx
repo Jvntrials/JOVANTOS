@@ -10,6 +10,7 @@ interface InputSectionProps {
   onUseSampleData: () => void;
   onClear: () => void;
   isLoading: boolean;
+  isApiKeyMissing: boolean;
 }
 
 export const InputSection: React.FC<InputSectionProps> = ({
@@ -21,6 +22,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
   onUseSampleData,
   onClear,
   isLoading,
+  isApiKeyMissing,
 }) => {
   const commonTextareaClasses = "w-full h-80 p-4 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out resize-y bg-slate-50";
 
@@ -75,8 +77,9 @@ export const InputSection: React.FC<InputSectionProps> = ({
 
         <button
           onClick={onAnalyze}
-          disabled={isLoading || !syllabus.trim() || !exam.trim()}
+          disabled={isLoading || !syllabus.trim() || !exam.trim() || isApiKeyMissing}
           className="w-full sm:w-auto px-8 py-3 text-lg font-semibold text-white bg-indigo-600 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 ease-in-out disabled:bg-indigo-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          title={isApiKeyMissing ? 'API Key is not configured. Analysis is disabled.' : ''}
         >
           {isLoading ? 'Analyzing...' : 'Analyze Content'}
         </button>
